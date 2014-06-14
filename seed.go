@@ -66,11 +66,13 @@ func Read(filename string) *bytes.Buffer {
 	return bytes.NewBuffer(buf)
 }
 
+// Insert prepares structure for disk saving.
 func Insert(p interface{}, f *os.File) {
 	binary := prepare(p)
 	Write(f, binary)
 }
 
+// ReadOne returns a first structure from byte buffer and decodes it according given structure.
 func ReadOne(p interface{}, data *bytes.Buffer) error {
 	dec := gob.NewDecoder(data)
 	err := dec.Decode(p)
