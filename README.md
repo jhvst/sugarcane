@@ -5,7 +5,7 @@ The sweet embedded database in Go
 
 Under heavy development!
 
-Sugarcane is a persistent data-store for Go structures. Data is saved in binary and loaded as byte buffer, so you don't need to encode data to different format, say JSON. Databases saved by sugarcane are also lightweight; one million structures of three field structures weight under 100MB.
+Sugarcane is a persistent data-store for Go structures. Data is saved in binary and loaded as byte buffer, so you don't need to encode data to different format, say JSON. Databases saved by sugarcane are also lightweight; one million structures of three field structures weight around 50-100MB.
 
 Sugarcane has no dependencies outside of the Go base library, so it will compile on every platform supported by Go. 
 
@@ -46,7 +46,7 @@ At the moment, sugarcane is rather naive implementation and does not include any
 	BenchmarkDecode	   50000	     50275 ns/op 
 	ok	8.019s
 
-Inserting one million lines of three field structures takes
+Inserting one million lines of three field structures takes:
 
 	real	0m9.574s
 	user	0m7.942s
