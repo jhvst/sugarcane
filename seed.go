@@ -5,51 +5,51 @@ import (
 	"bytes"
 	"encoding/gob"
 	"io"
-	"log"
 	"os"
 )
 
 // Prepare encodes struct into byte.Buffer.
-func prepare(p interface{}) bytes.Buffer {
+func prepare(p interface{}) (bytes.Buffer, error) {
 	var buf bytes.Buffer
 	enc := gob.NewEncoder(&buf)
 	err := enc.Encode(p)
 	if err != nil {
-		log.Fatal("encode error:", err)
+		return buf, err
 	}
-	return buf
+	return buf, nil
 }
 
 // Write writes byte buffer to file f.
-func Write(f *os.File, buf bytes.Buffer) {
+func Write(f *os.File, buf bytes.Buffer) error {
 	w := bufio.NewWriter(f)
 	_, err := w.Write(buf.Bytes())
 	if err != nil {
-		panic(err)
+		return err
 	}
 	w.Flush()
+	return nil
 }
 
 // Open opens a file for writing.
-func Open(filename string) *os.File {
+func Open(filename string) (*os.File, error) {
 	w, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0600)
 	if err != nil {
-		panic(err)
+		return w, err
 	}
-	return w
+	return w, nil
 }
 
 // Read reads a file
-func Read(filename string) *bytes.Buffer {
+func Read(filename string) (*bytes.Buffer, error) {
 	f, err := os.OpenFile(filename, os.O_RDONLY, 0600)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	defer f.Close()
 
 	fi, err := f.Stat()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	buf := make([]byte, fi.Size()) // make the buffer as big as the file
@@ -57,19 +57,23 @@ func Read(filename string) *bytes.Buffer {
 	for {
 		n, err := r.Read(buf)
 		if err != nil && err != io.EOF {
-			panic(err)
+			return nil, err
 		}
 		if n == 0 {
 			break
 		}
 	}
-	return bytes.NewBuffer(buf)
+	return bytes.NewBuffer(buf), nil
 }
 
 // Insert prepares structure for disk saving.
-func Insert(p interface{}, f *os.File) {
-	binary := prepare(p)
+func Insert(p interface{}, f *os.File) error {
+	binary, err := prepare(p)
+	if err != nil {
+		return err
+	}
 	Write(f, binary)
+	return nil
 }
 
 // ReadOne returns a first structure from byte buffer and decodes it according given structure.
