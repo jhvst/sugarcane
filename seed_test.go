@@ -45,7 +45,10 @@ func BenchmarkRead(b *testing.B) {
 
 	b.StartTimer()
 
-	data := Read("test_db")
+	data, err := Read("test_db")
+	if err != nil {
+		panic(err)
+	}
 
 	for i := 0; i < b.N; i++ {
 		var q P
@@ -69,7 +72,10 @@ func BenchmarkDecode(b *testing.B) {
 	}
 	defer f.Close()
 
-	data := Read("test_db")
+	data, err := Read("test_db")
+	if err != nil {
+		panic(err)
+	}
 
 	b.StartTimer()
 
