@@ -3,11 +3,11 @@ sugarcane
 
 The sweet embedded database in Go
 
-Under heavy development!
+Sugarcane is a persistent data-store for Go structures. Data is saved with the output of `encoding/gob` to disk, from which it can be loaded as byte buffer. You could for example save application progress in native Go structure, so you don't need to encode your data to different format, say JSON.
 
-Sugarcane is a persistent data-store for Go structures. Data is saved in binary and loaded as byte buffer, so you don't need to encode data to different format, say JSON. Databases saved by sugarcane are also lightweight; one million structures of three field structures weight around 50-100MB.
+Databases saved by sugarcane are also lightweight; one million lines of three field structures weight only around 50-100MB!
 
-Sugarcane has no dependencies outside of the Go base library, so it will compile on every platform supported by Go. 
+Sugarcane also has no dependencies outside of the Go standard library.
 
 Saving object into disk is as easy as
 
@@ -18,24 +18,34 @@ Saving object into disk is as easy as
 
 	var p Person
 	p.Name = "foo"
-	p.Age = 18
+	p.Visits = 3
 
-	sugarcane.Insert(p)
+	w, _ := sugarcane.Open("./person_table")
+
+	sugarcane.Insert(p, w)
 
 You can then read a single structure with
 
-	sugarcane.ReadOne(&p)
+	data, _ := sugarcane.Read("person_table")
+
+	sugarcane.ReadOne(&p, data)
 
 You can also read the whole file with for loop
 
+	data, _ := sugarcane.Read("person_table")
+
+	var persons []Person
+
 	for i := 0; ; i++ {
 		var q Person
-		err := sugarcane.ReadOne(&q)
+		err := sugarcane.ReadOne(&q, data)
 		if err == io.EOF {
 			break
 		}
-		fmt.Println(q.Name) // will print "foo"
+		persons = append(persons, p)
 	}
+
+	fmt.Println(persons)
 
 ##Performance
 
@@ -43,8 +53,7 @@ At the moment, sugarcane is rather naive implementation and does not include any
 
 	BenchmarkInsert	  200000	      8642 ns/op
 	BenchmarkRead	   50000	     50118 ns/op
-	BenchmarkDecode	   50000	     50275 ns/op 
-	ok	8.019s
+	ok	4.873s
 
 Inserting one million lines of three field structures takes:
 
@@ -59,10 +68,6 @@ Reading however...
 	sys		0m3.823s
 
 This makes sugarcane about 50 times slower than PostgreSQL.
-
-##Known bugs
-
-1. Buffer is currently drained upon reading
 
 ##License
 
