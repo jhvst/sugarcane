@@ -1,4 +1,4 @@
-sugarcane
+sugarcane [![GoDoc](https://godoc.org/github.com/9uuso/sugarcane?status.svg)](https://godoc.org/github.com/9uuso/sugarcane)
 =========
 
 The sweet embedded database in Go
