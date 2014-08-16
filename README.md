@@ -28,7 +28,7 @@ You can then read a single structure with
 
 	data, _ := sugarcane.Read("person_table")
 
-	sugarcane.ReadOne(&p, data)
+	sugarcane.Scan(&p, data)
 
 You can also read the whole file with for loop
 
@@ -38,7 +38,7 @@ You can also read the whole file with for loop
 
 	for i := 0; ; i++ {
 		var q Person
-		err := sugarcane.ReadOne(&q, data)
+		err := sugarcane.Scan(&q, data)
 		if err == io.EOF {
 			break
 		}

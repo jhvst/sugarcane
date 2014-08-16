@@ -53,7 +53,7 @@ func BenchmarkRead(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		var q P
 		//fmt.Println("Bytes left:", len(data.Bytes()))
-		err := ReadOne(&q, data)
+		err := Scan(&q, data)
 		if err == io.EOF {
 			break
 		}

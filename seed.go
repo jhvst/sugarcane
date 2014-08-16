@@ -76,8 +76,8 @@ func Insert(p interface{}, f *os.File) error {
 	return nil
 }
 
-// ReadOne returns a first structure from byte buffer and decodes it according given structure.
-func ReadOne(p interface{}, data *bytes.Buffer) error {
+// Scan returns a first structure from byte buffer and decodes it according given structure.
+func Scan(p interface{}, data *bytes.Buffer) error {
 	dec := gob.NewDecoder(data)
 	err := dec.Decode(p)
 	if err != nil {
