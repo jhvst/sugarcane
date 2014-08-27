@@ -19,8 +19,8 @@ func prepare(p interface{}) (bytes.Buffer, error) {
 	return buf, nil
 }
 
-// Write writes byte buffer to file f.
-func Write(f *os.File, buf bytes.Buffer) error {
+// write writes byte buffer to file f.
+func write(f *os.File, buf bytes.Buffer) error {
 	w := bufio.NewWriter(f)
 	_, err := w.Write(buf.Bytes())
 	if err != nil {
@@ -72,7 +72,7 @@ func Insert(p interface{}, f *os.File) error {
 	if err != nil {
 		return err
 	}
-	Write(f, binary)
+	write(f, binary)
 	return nil
 }
 
