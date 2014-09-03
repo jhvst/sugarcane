@@ -5,9 +5,9 @@ The sweet embedded database in Go
 
 Sugarcane is a persistent data-store for Go structures. Data is saved with the output of `encoding/gob` to disk, from which it can be loaded as byte buffer. You could for example save application progress in native Go structure, so you don't need to encode your data to different format, say JSON.
 
-Databases saved by sugarcane are also lightweight; one million lines of three field structures weight only around 50-100MB!
+Databases saved by sugarcane are also lightweight; one million lines of three field structures weight only around 50-100MB.
 
-Sugarcane also has no dependencies outside of the Go standard library.
+Sugarcane neither has any dependencies outside of the Go standard library.
 
 Saving object into disk is as easy as
 
@@ -26,19 +26,15 @@ Saving object into disk is as easy as
 
 You can then read a single structure with
 
-	data, _ := db.Read()
-
-	db.Scan(&p, data)
+	db.Scan(&p)
 
 You can also read the whole file with for loop
-
-	data, _ := db.Read()
 
 	var persons []Person
 
 	for i := 0; ; i++ {
 		var q Person
-		err := db.Scan(&q, data)
+		err := db.Scan(&q)
 		if err == io.EOF {
 			break
 		}
@@ -55,17 +51,17 @@ At the moment, sugarcane is rather naive implementation and does not include any
 	BenchmarkRead	   50000	     50118 ns/op
 	ok	4.873s
 
-Inserting one million lines of three field structures takes:
+Inserting million lines of five field structures (two integers, three strings) takes:
 
-	real	0m9.574s
-	user	0m7.942s
-	sys		0m1.944s
+	real	0m20.372s
+	user	0m17.434s
+	sys		0m5.098s
 
 Reading however...
 
-	real	1m13.020s
-	user	1m9.370s
-	sys		0m3.823s
+	real	0m57.875s
+	user	1m4.876s
+	sys		0m1.281s
 
 This makes sugarcane about 50 times slower than PostgreSQL.
 
