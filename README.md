@@ -13,7 +13,7 @@ Saving object into disk is as easy as
 
 	type Person struct {
 		Name string
-		Age
+		Age  int
 	}
 
 	var p Person
