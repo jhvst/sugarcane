@@ -5,8 +5,18 @@ import (
 	"bytes"
 	"encoding/gob"
 	"io"
+	"runtime"
 	"os"
 )
+
+func init() {
+	runtime.GOMAXPROCS(runtime.NumCPU())
+}
+
+type Database struct {
+	File *os.File
+	Filename string
+}
 
 // Prepare encodes struct into byte.Buffer.
 func prepare(p interface{}) (bytes.Buffer, error) {
@@ -31,17 +41,20 @@ func write(f *os.File, buf bytes.Buffer) error {
 }
 
 // Open opens a file for writing.
-func Open(filename string) (*os.File, error) {
+func Open(filename string) (Database, error) {
+	var d Database
 	w, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0600)
 	if err != nil {
-		return w, err
+		return d, err
 	}
-	return w, nil
+	d.File = w
+	d.Filename = filename
+	return d, nil
 }
 
 // Read reads a file
-func Read(filename string) (*bytes.Buffer, error) {
-	f, err := os.OpenFile(filename, os.O_RDONLY, 0600)
+func (d Database) Read() (*bytes.Buffer, error) {
+	f, err := os.OpenFile(d.Filename, os.O_RDONLY, 0600)
 	if err != nil {
 		return nil, err
 	}
@@ -67,17 +80,17 @@ func Read(filename string) (*bytes.Buffer, error) {
 }
 
 // Insert prepares structure for disk saving.
-func Insert(p interface{}, f *os.File) error {
+func (d Database) Insert(p interface{}) error {
 	binary, err := prepare(p)
 	if err != nil {
 		return err
 	}
-	write(f, binary)
+	write(d.File, binary)
 	return nil
 }
 
 // Scan returns a first structure from byte buffer and decodes it according given structure.
-func Scan(p interface{}, data *bytes.Buffer) error {
+func (d Database) Scan(p interface{}, data *bytes.Buffer) error {
 	dec := gob.NewDecoder(data)
 	err := dec.Decode(p)
 	if err != nil {

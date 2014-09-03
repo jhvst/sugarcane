@@ -15,11 +15,10 @@ func BenchmarkInsert(b *testing.B) {
 
 	b.StopTimer()
 
-	f, err := os.OpenFile("test_db", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0600)
+	w, err := Open("test_db")
 	if err != nil {
 		panic(err)
 	}
-	defer f.Close()
 
 	b.StartTimer()
 
@@ -28,7 +27,7 @@ func BenchmarkInsert(b *testing.B) {
 	person.Visits = 7
 
 	for i := 0; i < b.N; i++ {
-		Insert(person, f)
+		w.Insert(person)
 	}
 
 }
@@ -37,15 +36,14 @@ func BenchmarkRead(b *testing.B) {
 
 	b.StopTimer()
 
-	f, err := os.OpenFile("test_db", os.O_RDONLY, 0600)
+	w, err := Open("test_db")
 	if err != nil {
 		panic(err)
 	}
-	defer f.Close()
 
 	b.StartTimer()
 
-	data, err := Read("test_db")
+	data, err := w.Read()
 	if err != nil {
 		panic(err)
 	}
@@ -53,7 +51,7 @@ func BenchmarkRead(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		var q P
 		//fmt.Println("Bytes left:", len(data.Bytes()))
-		err := Scan(&q, data)
+		err := w.Scan(&q, data)
 		if err == io.EOF {
 			break
 		}

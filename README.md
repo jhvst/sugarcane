@@ -20,25 +20,25 @@ Saving object into disk is as easy as
 	p.Name = "foo"
 	p.Visits = 3
 
-	w, _ := sugarcane.Open("./person_table")
+	db, _ := sugarcane.Open("./person_table")
 
-	sugarcane.Insert(p, w)
+	db.Insert(p)
 
 You can then read a single structure with
 
-	data, _ := sugarcane.Read("person_table")
+	data, _ := db.Read()
 
-	sugarcane.Scan(&p, data)
+	db.Scan(&p, data)
 
 You can also read the whole file with for loop
 
-	data, _ := sugarcane.Read("person_table")
+	data, _ := db.Read()
 
 	var persons []Person
 
 	for i := 0; ; i++ {
 		var q Person
-		err := sugarcane.Scan(&q, data)
+		err := db.Scan(&q, data)
 		if err == io.EOF {
 			break
 		}
