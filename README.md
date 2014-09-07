@@ -3,7 +3,7 @@ sugarcane [![GoDoc](https://godoc.org/github.com/9uuso/sugarcane?status.svg)](ht
 
 The sweet embedded database in Go
 
-Sugarcane is a persistent data-store for Go structures. Data is saved with the output of `encoding/gob` to disk, from which it can be loaded as byte buffer. You could for example save application progress in native Go structure, so you don't need to encode your data to different format, say JSON.
+Sugarcane is a persistent data-store for Go structures. Data is saved with the output of `encoding/gob` to disk, from which it can be loaded as byte buffer and ultimately used again as a native structure. You could for example save application progress in native Go structure, so you don't need to encode your data to different format, say JSON.
 
 Databases saved by sugarcane are also lightweight; one million lines of three field structures weight only around 50-100MB.
 

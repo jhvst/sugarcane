@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/gob"
-	"io"
 	"os"
+	"io/ioutil"
 )
 
 type Database struct {
@@ -57,22 +57,9 @@ func Open(filename string) (Database, error) {
 	d.File = w
 	d.Filename = filename
 
-	fi, err := w.Stat()
+	buf, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return d, err
-	}
-
-	// read the old file
-	buf := make([]byte, fi.Size()) // make the buffer as big as the file
-	r := bufio.NewReader(w)
-	for {
-		n, err := r.Read(buf)
-		if err != nil && err != io.EOF {
-			return d, err
-		}
-		if n == 0 {
-			break
-		}
 	}
 
 	// save buffer to cache
