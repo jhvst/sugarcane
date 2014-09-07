@@ -24,7 +24,7 @@ func main() {
 		panic(err)
 	}
 
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 30; i++ {
 		var person P
 
 		person.Name = "juuso"
@@ -33,12 +33,21 @@ func main() {
 		person.Age = 18
 		person.Games = i
 
-		w.Insert(person)
+		err := w.Insert(person)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	for i := 0; ; i++ {
 		var q P
 		err := w.Scan(&q)
+		if q.Games == 2 {
+			err := w.Delete(&q)
+			if err != nil {
+				panic(err)
+			}
+		}
 		if err == io.EOF {
 			log.Println("Everything read. Found", i, "occurances.")
 			break

@@ -26,13 +26,22 @@ func prepare(p interface{}) (bytes.Buffer, error) {
 }
 
 // write writes data to disk
-func write(f *os.File, buf bytes.Buffer) error {
-	w := bufio.NewWriter(f)
+func (d Database) write(buf bytes.Buffer) error {
+	w := bufio.NewWriter(d.File)
 	_, err := w.Write(buf.Bytes())
 	if err != nil {
 		return err
 	}
 	w.Flush()
+	return nil
+}
+
+// clanwrite is part of delete, which commits changes to disk
+func (d Database) cleanwrite(data []byte) error {
+	err := ioutil.WriteFile(d.Filename, data, 0600)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -45,6 +54,15 @@ func (d Database) binappend(binary bytes.Buffer) error {
 	}
 	w.Flush()
 	return nil
+}
+
+// binremove returns byte array without the binary parameter
+func (d Database) binremove(binary bytes.Buffer) ([]byte, error) {
+	buf, err := ioutil.ReadFile(d.Filename)
+	if err != nil {
+		return buf, err
+	}
+	return bytes.Replace(buf, binary.Bytes(), []byte(""), -1), nil
 }
 
 // Open opens a file for writing.
@@ -77,7 +95,24 @@ func (d Database) Insert(p interface{}) error {
 	if err != nil {
 		return err
 	}
-	write(d.File, binary)
+	d.write(binary)
+	return nil
+}
+
+// Delete removes structure from disk
+func (d Database) Delete(p interface{}) error {
+	binary, err := prepare(p)
+	if err != nil {
+		return err
+	}
+	data, err := d.binremove(binary)
+	if err != nil {
+		return err
+	}
+	err = d.cleanwrite(data)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
