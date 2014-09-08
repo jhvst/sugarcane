@@ -4,9 +4,9 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/gob"
-	"os"
-	"io/ioutil"
 	"io"
+	"io/ioutil"
+	"os"
 )
 
 var Empty = io.EOF
@@ -39,7 +39,7 @@ func (d Database) write(buf bytes.Buffer) error {
 	return nil
 }
 
-// clanwrite is part of delete, which commits changes to disk
+// clanwrite is part of Delete(), which commits changes to disk
 func (d Database) cleanwrite(data []byte) error {
 	err := ioutil.WriteFile(d.Filename, data, 0600)
 	if err != nil {
@@ -59,7 +59,7 @@ func (d Database) binappend(binary bytes.Buffer) error {
 	return nil
 }
 
-// binremove returns byte array without the binary parameter
+// binremove returns altered version of cache with the binary paremeter removed
 func (d Database) binremove(binary bytes.Buffer) ([]byte, error) {
 	buf, err := ioutil.ReadFile(d.Filename)
 	if err != nil {
@@ -77,7 +77,7 @@ func (d Database) replenish() (*bytes.Buffer, error) {
 	return bytes.NewBuffer(buf), nil
 }
 
-// Open opens a file for writing.
+// Open opens a database table. If it does not exist, it creates it.
 func Open(filename string) (Database, error) {
 	var d Database
 	w, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0600)
@@ -97,7 +97,7 @@ func Open(filename string) (Database, error) {
 	return d, nil
 }
 
-// Insert prepares structure for disk saving.
+// Insert appends p into cache and disk.
 func (d Database) Insert(p interface{}) error {
 	binary, err := prepare(p)
 	if err != nil {
@@ -111,7 +111,7 @@ func (d Database) Insert(p interface{}) error {
 	return nil
 }
 
-// Delete removes structure from disk
+// Delete removes p from disk.
 func (d Database) Delete(p interface{}) error {
 	binary, err := prepare(p)
 	if err != nil {
@@ -128,7 +128,7 @@ func (d Database) Delete(p interface{}) error {
 	return nil
 }
 
-// Update removes structure p from disk and inserts p2 to cache and disk
+// Update first deletes old and then appends p to cache and disk.
 func (d Database) Update(old interface{}, p interface{}) error {
 	err := d.Delete(old)
 	if err != nil {
@@ -141,7 +141,7 @@ func (d Database) Update(old interface{}, p interface{}) error {
 	return nil
 }
 
-// Scan returns a first structure from byte buffer and decodes it according given structure.
+// Scan decodes p with the data of d.Cache.
 func (d Database) Scan(p interface{}) (Database, error) {
 	dec := gob.NewDecoder(d.Cache)
 	err := dec.Decode(p)
