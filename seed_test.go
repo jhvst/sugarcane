@@ -46,7 +46,7 @@ func BenchmarkRead(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		var q P
 		//fmt.Println("Bytes left:", len(data.Bytes()))
-		err := w.Scan(&q)
+		w, err = w.Scan(&q)
 		if err == io.EOF {
 			break
 		}

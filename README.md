@@ -34,7 +34,7 @@ You can also read the whole file with for loop
 
 	for i := 0; ; i++ {
 		var q Person
-		err := db.Scan(&q)
+		db, err := db.Scan(&q)
 		if err == io.EOF {
 			break
 		}
@@ -63,7 +63,7 @@ Reading however...
 	user	1m4.876s
 	sys		0m1.281s
 
-This makes sugarcane about 50 times slower than PostgreSQL.
+This makes sugarcane about 50 times slower than PostgreSQL. Although, some simple benchmarks indicate that sugarcane would be [up to two minutes faster than MongoDB](http://www.moredevs.ro/mysql-vs-mongodb-performance-benchmark/) when writing 10M rows, and [equally](http://www.badrit.com/blog/2013/11/18/redis-vs-mongodb-performance) fast to write data as Redis. Whether that is anything to believe, you will have to run the tests yourself.
 
 ##License
 
