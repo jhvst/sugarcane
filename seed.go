@@ -6,7 +6,10 @@ import (
 	"encoding/gob"
 	"os"
 	"io/ioutil"
+	"io"
 )
+
+var Empty = io.EOF
 
 type Database struct {
 	File     *os.File
@@ -65,6 +68,15 @@ func (d Database) binremove(binary bytes.Buffer) ([]byte, error) {
 	return bytes.Replace(buf, binary.Bytes(), []byte(""), -1), nil
 }
 
+// replenish re-reads the table file and populates the cache
+func (d Database) replenish() (*bytes.Buffer, error) {
+	buf, err := ioutil.ReadFile(d.Filename)
+	if err != nil {
+		return bytes.NewBuffer(buf), err
+	}
+	return bytes.NewBuffer(buf), nil
+}
+
 // Open opens a file for writing.
 func Open(filename string) (Database, error) {
 	var d Database
@@ -116,12 +128,32 @@ func (d Database) Delete(p interface{}) error {
 	return nil
 }
 
-// Scan returns a first structure from byte buffer and decodes it according given structure.
-func (d Database) Scan(p interface{}) error {
-	dec := gob.NewDecoder(d.Cache)
-	err := dec.Decode(p)
+// Update removes structure p from disk and inserts p2 to cache and disk
+func (d Database) Update(old interface{}, p interface{}) error {
+	err := d.Delete(old)
+	if err != nil {
+		return err
+	}
+	err = d.Insert(p)
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+// Scan returns a first structure from byte buffer and decodes it according given structure.
+func (d Database) Scan(p interface{}) (Database, error) {
+	dec := gob.NewDecoder(d.Cache)
+	err := dec.Decode(p)
+	if err == io.EOF {
+		d.Cache, err = d.replenish()
+		if err != nil {
+			return d, err
+		}
+		return d, Empty
+	}
+	if err != nil {
+		return d, err
+	}
+	return d, nil
 }
